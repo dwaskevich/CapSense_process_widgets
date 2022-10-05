@@ -4,7 +4,27 @@
  *  Created on: Oct 1, 2022
  *      Author: Waskevich
  *
- *  Shell for processing CapSense buttons and events
+ *  Shell/template for processing CapSense buttons and handling associated events.
+ *
+ *  Description: This code example provides a shell (or template) for processing CapSense
+ *  			 buttons and handling associated events. Currently it is designed for
+ *  			 multiple key lockout but can easily be updated to accommodate multiple
+ *  			 active keys.
+ *
+ *  			 The primary function (processButtons) takes care of:
+ *  			 	- checking the status of CapSense buttons and building a bitfield map
+ *  			 	- analyzing the resulting bitfield for active buttons or lift-off events
+ *  			 	- determining if an active button is the result of a new (i.e. touchdown)
+ *  			 	  event, hold (i.e. on-going) event or has experienced a lift-off event
+ *  			 	- calling the corresponding button handler to process the event
+ *
+ *  			The secondary function (processTouchEvents) calls the appropriate button
+ *  			event handler via simple switch() statement.
+ *
+ *  			The button event handlers are constructed from a common/identical framework.
+ *  			Additional button event handlers can be added by copying and pasting the
+ *  			framework/template. Specific/custom actions can then be added in the body of
+ *  			the code.
  *
  */
 
@@ -20,7 +40,7 @@ uint32_t processButtons(void)
 
 	wdgtBitfield = NO_WIDGETS_ACTIVE;
 
-    if(Cy_CapSense_IsAnyWidgetActive(&cy_capsense_context))
+    if(Cy_CapSense_IsAnyWidgetActive(&cy_capsense_context)) /* skip if no widgets are active */
     {
 		/* look for key presses */
 		numWdgtActive = 0;
@@ -36,7 +56,7 @@ uint32_t processButtons(void)
 		}
 		if(wdgtBitfield > 0) /* at least one key is active */
 		{
-			if(previousBitField != wdgtBitfield)
+			if(previousBitField != wdgtBitfield) /* this is a new (touchdown) event */
 			{
 				previousBitField = wdgtBitfield;
 				processTouchEvents(numWdgtActive, true, wdgtBitfield); /* process new touchdown event */
@@ -52,7 +72,7 @@ uint32_t processButtons(void)
 		/* check buttons to see if they went inactive on this scan */
 		if(0 != previousBitField) /* this is a new liftoff event */
 		{
-			processTouchEvents(NO_WIDGETS_ACTIVE, true, previousBitField); /* report lift-off event */
+			processTouchEvents(NO_WIDGETS_ACTIVE, true, previousBitField); /* report and process lift-off event */
 			previousBitField = 0;
 		}
 	}
@@ -69,7 +89,7 @@ void processTouchEvents(uint32_t numberActiveWidgets, bool newEvent, uint32_t bi
 			case (1 << Button0):
 				btn_Button0(numberActiveWidgets, newEvent);
 				break;
-			case (1 << 1):
+			case (1 << Button1):
 				btn_Button1(numberActiveWidgets, newEvent);
 				break;
 			default:
@@ -81,6 +101,8 @@ void processTouchEvents(uint32_t numberActiveWidgets, bool newEvent, uint32_t bi
 
 	}
 }
+
+/* NOTE - event handlers use identical framework. Additional handlers can be added by copy/paste. */
 
 void btn_Button0(uint32_t eventType, bool newEvent)
 {

@@ -13,10 +13,7 @@
 #include "cycfg_capsense.h"
 #include "processSliders.h"
 
-sliderValues_t sliderValues[numSliders] =
-{
-		{0, 0, 0, 0}
-};
+sliderValues_t sliderValues[numSliders];
 
 uint32_t processSliders(void)
 {

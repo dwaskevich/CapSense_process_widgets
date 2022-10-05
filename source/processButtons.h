@@ -17,7 +17,7 @@
 #define MY_LED_OFF					(1u)
 #define MY_LED_ON					(0u)
 
-/* enumeration for buttons */
+/* enumeration for buttons (useful for symbolic/easy-to-understand meaning) ... add any additional CapSense buttons here */
 enum {
 	Button0,
 	Button1,
