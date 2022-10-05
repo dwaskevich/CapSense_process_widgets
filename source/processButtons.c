@@ -11,20 +11,28 @@
  *  			 multiple key lockout but can easily be updated to accommodate multiple
  *  			 active keys.
  *
- *  			 The primary function (processButtons) takes care of:
+ *  			 Provides the following touch event placeholders/features:
+ *  			 	- Touchdown event/actions (one-time event until release)
+ *  			 	- Hold event/actions (continuous/each scan cycle)
+ *  			 	- Short hold event/actions (one-time event until release)
+ *  			 	- Repeat event/actions (until release)
+ *  			 	- Long hold (with hysteresis) event/actions
+ *
+ *  			 The primary function (processButtons) implements:
  *  			 	- checking the status of CapSense buttons and building a bitfield map
  *  			 	- analyzing the resulting bitfield for active buttons or lift-off events
  *  			 	- determining if an active button is the result of a new (i.e. touchdown)
- *  			 	  event, hold (i.e. on-going) event or has experienced a lift-off event
+ *  			 	  event, hold (i.e. on-going) event or went inactive with lift-off event
  *  			 	- calling the corresponding button handler to process the event
  *
  *  			The secondary function (processTouchEvents) calls the appropriate button
  *  			event handler via simple switch() statement.
  *
- *  			The button event handlers are constructed from a common/identical framework.
- *  			Additional button event handlers can be added by copying and pasting the
- *  			framework/template. Specific/custom actions can then be added in the body of
- *  			the code.
+ *  			Finally, the button event handlers provide placeholders for touchdown, short
+ *  			hold, repeat, long hold and liftoff event actions. The handler is a framework
+ *  			and identical for all buttons. Additional buttons can be added by copying
+ *  			and pasting the	framework/template. Specific/custom actions can then be added
+ *  			in the body of the code.
  *
  */
 
@@ -102,27 +110,71 @@ void processTouchEvents(uint32_t numberActiveWidgets, bool newEvent, uint32_t bi
 	}
 }
 
-/* NOTE - event handlers use identical framework. Additional handlers can be added by copy/paste. */
+/* NOTE - event handlers use identical framework. Additional button handlers can be added by copy/paste. */
 
 void btn_Button0(uint32_t eventType, bool newEvent)
 {
+	static uint32_t scanCounter, repeatCount;
+	static bool shortHoldExpired, longHoldExpired;
+	static uint32_t longHoldTime = LONG_HOLD_TIME;
+
 	if(TOUCH_ACTIVE == eventType) /* number of active widgets is 1 */
 	{
-		if(true == newEvent) /* touchdown event */
+		if(true == newEvent) /* indicates a touchdown event */
 		{
-			/* do any touchdown actions here */
-			cyhal_gpio_toggle(CYBSP_USER_LED);
-		}
-		else if(false == newEvent) /* ongoing touch event */
-		{
-			/* do on-going actions here */
+			scanCounter = 0; /* reset scan counter ... will be used to measure hold time */
+			longHoldTime = LONG_HOLD_TIME;
+			shortHoldExpired = false;
+			longHoldExpired = false;
 
+			/* do any touchdown actions here */
+			cyhal_gpio_write(CYBSP_USER_LED, MY_LED_ON);
+
+		}
+		else /* ongoing touch event */
+		{
+			/* do on-going actions here (will happen each scan) */
+
+
+			/* test for hold-time events */
+			if(scanCounter++ > TOUCH_HOLD_TIME_COUNTS && false == longHoldExpired) /* time to do something */
+			{
+				if(false == shortHoldExpired) /* first expiration (i.e. hold time expired) */
+				{
+					shortHoldExpired = true; /* set flag */
+					repeatCount = 0; /* initialize repeat counter */
+
+					/* do any short hold actions here (will only happen once until button is released) */
+					cyhal_gpio_write(CYBSP_USER_LED, MY_LED_OFF);
+
+				}
+				else /* execute "repeat" actions every TOUCH_REPEAT_COUNTS interval */
+				{
+					if(repeatCount++ > TOUCH_REPEAT_COUNTS)
+					{
+						repeatCount = 0; /* reset repeat counter */
+
+						/* do any repeat actions here */
+						cyhal_gpio_toggle(CYBSP_USER_LED);
+					}
+				}
+			}
+
+			if(scanCounter > longHoldTime)
+			{
+				longHoldTime = LONG_HOLD_TIME + LONG_HOLD_HYSTERESIS; /* add hysteresis in case button continues to be held */
+				scanCounter = 0; /* reset CapSense scan counter */
+				longHoldExpired = true; /* set flag */
+
+				/* do any long-hold actions here */
+				cyhal_gpio_write(CYBSP_USER_LED, MY_LED_OFF);
+			}
 		}
 	}
 	else if(LIFT_OFF == eventType) /* number of active widgets is 0 */
 	{
 		/* do any lift-off actions here */
-
+		cyhal_gpio_write(CYBSP_USER_LED, MY_LED_OFF);
 	}
 }
 

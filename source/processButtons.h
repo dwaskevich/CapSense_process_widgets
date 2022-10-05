@@ -14,6 +14,23 @@
 #define TOUCH_ACTIVE				(1u)
 #define LIFT_OFF					(0u)
 
+/* estimate of CapSense scan time */
+#define TOUCH_COUNT_MSEC			(1u)
+
+#define TOUCH_HOLD_TIME_MSEC		(800u)
+#define TOUCH_HOLD_TIME_COUNTS		(TOUCH_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
+
+/* TOUCH_REPEAT_MSEC (~200 msec for 5x per second repeat rate) should be multiple of TOUCH_COUNT_MSEC */
+#define TOUCH_REPEAT_MSEC			(200 * TOUCH_COUNT_MSEC)
+
+#define TOUCH_REPEAT_COUNTS			(TOUCH_REPEAT_MSEC / TOUCH_COUNT_MSEC)
+
+/* define long hold time */
+#define LONG_HOLD_TIME_MSEC			(5000u)
+#define LONG_HOLD_TIME				(LONG_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
+
+#define LONG_HOLD_HYSTERESIS		(10000u / TOUCH_COUNT_MSEC)
+
 #define MY_LED_OFF					(1u)
 #define MY_LED_ON					(0u)
 
