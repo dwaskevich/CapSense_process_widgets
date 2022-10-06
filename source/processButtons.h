@@ -36,9 +36,8 @@
 
 /* enumeration for buttons (useful for symbolic/easy-to-understand meaning) ... add any additional CapSense buttons here */
 enum {
-	Button0,
-	Button1,
-	maxButtons
+	Button0 = CY_CAPSENSE_BUTTON0_WDGT_ID,
+	Button1 = CY_CAPSENSE_BUTTON1_WDGT_ID
 };
 
 uint32_t processButtons(void);

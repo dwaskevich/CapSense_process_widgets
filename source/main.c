@@ -1,11 +1,17 @@
 /******************************************************************************
 * File Name: main.c
 *
-* Description: This code example features a 5-segment CapSense slider and two
-*              CapSense buttons. Button 0 turns the LED ON, Button 1 turns the
-*              LED OFF, and the slider controls the brightness of the LED. The
-*              code example also features interfacing with Tuner GUI using I2C
-*              interface.
+* Description: This project is based on the CAPSENSE_Buttons_and_Slider code
+* 			   example created with Modus Toolbox New Application Wizard.
+* 			   It features a 5-segment CapSense slider and two CapSense buttons.
+*              Helper functions have been added to handle CapSense touch
+*              processing for both buttons and sliders. Button features
+*              include placeholders to process touchdown, hold, repeat,
+*              long-hold and lift-off events. Slider features include similar
+*              touchdown, on-going and lift-off events. The code example also
+*              features interfacing with Tuner GUI using I2C interface.
+*
+*              Tested on CY8CPROTO-062-4343W kit
 *
 * Related Document: See README.md
 *
@@ -52,7 +58,6 @@
 #include "cycfg_capsense.h"
 #include "processSliders.h"
 #include "processButtons.h"
-#include "led.h"
 
 /*******************************************************************************
 * Macros
@@ -65,7 +70,6 @@
 * Function Prototypes
 *******************************************************************************/
 static uint32_t initialize_capsense(void);
-static void process_touch(void);
 static void initialize_capsense_tuner(void);
 static void capsense_isr(void);
 static void capsense_callback();
@@ -131,8 +135,6 @@ int main(void)
     /* Enable global interrupts */
     __enable_irq();
 
-//    initialize_led();
-
     cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, 1);
 
     initialize_capsense_tuner();
@@ -155,7 +157,6 @@ int main(void)
             Cy_CapSense_ProcessAllWidgets(&cy_capsense_context);
 
             /* Process touch input */
-//            process_touch();
             processSliders();
             processButtons();
 
@@ -174,82 +175,6 @@ int main(void)
     
 }
 
-/*******************************************************************************
-* Function Name: process_touch
-********************************************************************************
-* Summary:
-*  Gets the details of touch position detected, processes the touch input
-*  and updates the LED status.
-*
-*******************************************************************************/
-static void process_touch(void)
-{
-    uint32_t button0_status;
-    uint32_t button1_status;
-    cy_stc_capsense_touch_t *slider_touch_info;
-    uint16_t slider_pos;
-    uint8_t slider_touch_status;
-    bool led_update_req = false;
-
-    static uint32_t button0_status_prev;
-    static uint32_t button1_status_prev;
-    static uint16_t slider_pos_prev;
-    static led_data_t led_data = {LED_ON, LED_MAX_BRIGHTNESS};
-
-    /* Get button 0 status */
-    button0_status = Cy_CapSense_IsSensorActive(
-        CY_CAPSENSE_BUTTON0_WDGT_ID,
-        CY_CAPSENSE_BUTTON0_SNS0_ID,
-        &cy_capsense_context);
-
-    /* Get button 1 status */
-    button1_status = Cy_CapSense_IsSensorActive(
-        CY_CAPSENSE_BUTTON1_WDGT_ID,
-        CY_CAPSENSE_BUTTON1_SNS0_ID,
-        &cy_capsense_context);
-
-    /* Get slider status */
-    slider_touch_info = Cy_CapSense_GetTouchInfo(
-        CY_CAPSENSE_LINEARSLIDER0_WDGT_ID, &cy_capsense_context);
-    slider_touch_status = slider_touch_info->numPosition;
-    slider_pos = slider_touch_info->ptrPosition->x;
-
-    /* Detect new touch on Button0 */
-    if ((0u != button0_status) &&
-        (0u == button0_status_prev))
-    {
-        led_data.state = LED_ON;
-        led_update_req = true;
-    }
-
-    /* Detect new touch on Button1 */
-    if ((0u != button1_status) &&
-        (0u == button1_status_prev))
-    {
-        led_data.state = LED_OFF;
-        led_update_req = true;
-    }
-
-    /* Detect the new touch on slider */
-    if ((0 != slider_touch_status) &&
-        (slider_pos != slider_pos_prev))
-    {
-        led_data.brightness = (slider_pos * 100)
-                / cy_capsense_context.ptrWdConfig[CY_CAPSENSE_LINEARSLIDER0_WDGT_ID].xResolution;
-        led_update_req = true;
-    }
-
-    /* Update the LED state if requested */
-    if (led_update_req)
-    {
-        update_led_state(&led_data);
-    }
-
-    /* Update previous touch status */
-    button0_status_prev = button0_status;
-    button1_status_prev = button1_status;
-    slider_pos_prev = slider_pos;
-}
 
 /*******************************************************************************
 * Function Name: initialize_capsense

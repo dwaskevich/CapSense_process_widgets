@@ -11,12 +11,12 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#define NUMBER_OF_SLIDERS				(1u)
 #define NO_SLIDERS_ACTIVE				(0xFFFF)
 
 /* enumeration for sliders */
 enum {
-	Slider0,
-	numSliders
+	Slider0 = CY_CAPSENSE_LINEARSLIDER0_WDGT_ID
 };
 
 typedef struct
@@ -28,7 +28,9 @@ typedef struct
 } sliderValues_t;
 
 uint32_t processSliders(void);
-uint16_t calculateSliderValue(uint16_t sliderValue);
+void processSliderEvents(uint32_t sliderNum, bool newEvent, uint16_t sliderValue);
+
+void slider_0(bool newEvent, uint16_t sliderValue);
 
 
 #endif /* PROCESSSLIDERS_H_ */
