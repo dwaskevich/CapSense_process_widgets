@@ -38,7 +38,8 @@
  *  			- include processButtons.h file in main.c (#include "processButtons.h")
  *  			- add descriptive button names (if desired) to enum in processButtons.h file
  *  				- note - these names are used as limits in the for() loop
- *  			- estimate and enter total CapSense scan time in TOUCH_COUNT_MSEC macro
+ *  			- enter total CapSense scan time in TOUCH_COUNT_MSEC macro (processButtons.h)
+ *  			- enter desired hold and repeat rate parameters in processButtons.h
  *  			- copy/paste (or delete) template handler to add (or remove) additional buttons
  *  			- add action code to desired events
  *  			- call processButtons() from main loop when CapSense engine is not busy
@@ -127,14 +128,14 @@ void btn_Button0(uint32_t eventType, bool newEvent)
 {
 	static uint32_t scanCounter, repeatCount;
 	static bool shortHoldExpired, longHoldExpired;
-	static uint32_t longHoldTime = LONG_HOLD_TIME;
+	static uint32_t longHoldTime = LONG_HOLD_TIME_COUNTS;
 
 	if(TOUCH_ACTIVE == eventType) /* number of active widgets is 1 */
 	{
 		if(true == newEvent) /* indicates a touchdown event */
 		{
 			scanCounter = 0; /* reset scan counter ... will be used to measure hold time */
-			longHoldTime = LONG_HOLD_TIME;
+			longHoldTime = LONG_HOLD_TIME_COUNTS;
 			shortHoldExpired = false;
 			longHoldExpired = false;
 
@@ -173,7 +174,7 @@ void btn_Button0(uint32_t eventType, bool newEvent)
 
 			if(scanCounter > longHoldTime)
 			{
-				longHoldTime = LONG_HOLD_TIME + LONG_HOLD_HYSTERESIS; /* add hysteresis in case button continues to be held */
+				longHoldTime = LONG_HOLD_TIME_COUNTS + LONG_HOLD_HYSTERESIS_COUNTS; /* add hysteresis in case button continues to be held */
 				scanCounter = 0; /* reset CapSense scan counter */
 				longHoldExpired = true; /* set flag */
 
@@ -193,14 +194,14 @@ void btn_Button1(uint32_t eventType, bool newEvent)
 {
 	static uint32_t scanCounter, repeatCount;
 	static bool shortHoldExpired, longHoldExpired;
-	static uint32_t longHoldTime = LONG_HOLD_TIME;
+	static uint32_t longHoldTime = LONG_HOLD_TIME_COUNTS;
 
 	if(TOUCH_ACTIVE == eventType) /* number of active widgets is 1 */
 	{
 		if(true == newEvent) /* indicates a touchdown event */
 		{
 			scanCounter = 0; /* reset scan counter ... will be used to measure hold time */
-			longHoldTime = LONG_HOLD_TIME;
+			longHoldTime = LONG_HOLD_TIME_COUNTS;
 			shortHoldExpired = false;
 			longHoldExpired = false;
 
@@ -239,7 +240,7 @@ void btn_Button1(uint32_t eventType, bool newEvent)
 
 			if(scanCounter > longHoldTime)
 			{
-				longHoldTime = LONG_HOLD_TIME + LONG_HOLD_HYSTERESIS; /* add hysteresis in case button continues to be held */
+				longHoldTime = LONG_HOLD_TIME_COUNTS + LONG_HOLD_HYSTERESIS_COUNTS; /* add hysteresis in case button continues to be held */
 				scanCounter = 0; /* reset CapSense scan counter */
 				longHoldExpired = true; /* set flag */
 

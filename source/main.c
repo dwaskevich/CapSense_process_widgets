@@ -8,8 +8,11 @@
 *              processing for both buttons and sliders. Button features
 *              include placeholders to process touchdown, hold, repeat,
 *              long-hold and lift-off events. Slider features include similar
-*              touchdown, on-going and lift-off events. The code example also
-*              features interfacing with Tuner GUI using I2C interface.
+*              touchdown, on-going and lift-off events. Refer to comments
+*              section of processButtons.c and processSliders.c for more details.
+*
+*              The code example also features interfacing with Tuner GUI using
+*              I2C interface.
 *
 *              Tested on CY8CPROTO-062-4343W kit
 *

@@ -14,22 +14,29 @@
 #define TOUCH_ACTIVE				(1u)
 #define LIFT_OFF					(0u)
 
-/* estimate of CapSense scan time */
+/*******************************************************************************
+ * user inputs here
+ *******************************************************************************/
+/* enter CapSense scan time (measured or calculated from CapSense scan parameters) */
 #define TOUCH_COUNT_MSEC			(1u)
-
+/* define desired "pause" (i.e. short hold time/delay) after touch before repeat */
 #define TOUCH_HOLD_TIME_MSEC		(800u)
-#define TOUCH_HOLD_TIME_COUNTS		(TOUCH_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
-
-/* TOUCH_REPEAT_MSEC (~200 msec for 5x per second repeat rate) should be multiple of TOUCH_COUNT_MSEC */
-#define TOUCH_REPEAT_MSEC			(200 * TOUCH_COUNT_MSEC)
-
-#define TOUCH_REPEAT_COUNTS			(TOUCH_REPEAT_MSEC / TOUCH_COUNT_MSEC)
-
+/* define desired repeat rate (in msec) - e.g. 200 msec for 5x per second repeat rate */
+#define TOUCH_REPEAT_RATE			(200u)
 /* define long hold time */
 #define LONG_HOLD_TIME_MSEC			(5000u)
-#define LONG_HOLD_TIME				(LONG_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
+/* define long hold time hysteresis */
+#define LONG_HOLD_TIME_HYST_MSEC	(10000u)
 
-#define LONG_HOLD_HYSTERESIS		(10000u / TOUCH_COUNT_MSEC)
+/*******************************************************************************
+ * pre-processor macros for calculating hold and repeat counts
+ *  - note - if msec time base is available, it can be used instead of counts
+ ********************************************************************************/
+#define TOUCH_REPEAT_MSEC			((TOUCH_REPEAT_RATE / TOUCH_COUNT_MSEC) * TOUCH_COUNT_MSEC)
+#define TOUCH_HOLD_TIME_COUNTS		(TOUCH_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
+#define TOUCH_REPEAT_COUNTS			(TOUCH_REPEAT_MSEC / TOUCH_COUNT_MSEC)
+#define LONG_HOLD_TIME_COUNTS		(LONG_HOLD_TIME_MSEC / TOUCH_COUNT_MSEC)
+#define LONG_HOLD_HYSTERESIS_COUNTS	(LONG_HOLD_TIME_HYST_MSEC / TOUCH_COUNT_MSEC)
 
 #define MY_LED_OFF					(1u)
 #define MY_LED_ON					(0u)
