@@ -11,9 +11,9 @@
  *
  *  			 It identifies and provides the following features and event placeholders:
  *  			 	- Prioritizes active slider (if there's more than one slider in the design).
- *  			 	  - Similar to multi-key lockout for buttons (i.e. only one slider
- *  			 	  	processed at a time). This can be updated as needed.
- *  			 	- Looks for active slider (if none are currently active)
+ *  			 	  - This is similar to multi-key lockout for buttons (i.e. only one slider
+ *  			 	  	processed at a time). This can be updated/changed as needed.
+ *  			 	- Otherwise, looks for active slider (if none are currently active)
  *  			 	- Distinguishes between touchdown, on-going and liftoff events
  *
  *  			 The primary function (processSliders) implements the following tasks:
@@ -21,7 +21,7 @@
  *  			 		- does nothing until there is a change in position (or lift-off occurs)
  *  			 	- searches for active slider (if none are previously active)
  *  			 	- reports touchdown event for newly active slider
- *  			 	- updates touch status in sliderValues array
+ *  			 	- updates touch status (true/false) in sliderValues array
  *  			 	- identifies and reports lift-off events
  *
  *  			The secondary function (processSliderEvents) calls the appropriate slider
