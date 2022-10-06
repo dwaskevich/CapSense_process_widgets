@@ -1,6 +1,20 @@
 # PSoC&trade; 6 MCU: CAPSENSE&trade; buttons and slider
 
-This code example features a 5-segment CAPSENSE&trade; slider and two CAPSENSE&trade; buttons. Button 0 turns the LED ON, button 1 turns the LED OFF, and the slider controls the brightness of the LED. The code example also demonstrates monitoring CAPSENSE&trade; data using the CAPSENSE&trade; tuner GUI tool. This project uses the [CAPSENSE&trade; Middleware Library](https://github.com/Infineon/capsense).
+This project is based on the CAPSENSE_Buttons_and_Slider code example created with Modus Toolbox New Application Wizard.
+
+It features a 5-segment CapSense slider and two CapSense buttons.
+
+Helper functions have been added to handle CapSense touch processing for both buttons and sliders. Button features include placeholders to process touchdown, hold, repeat, long-hold and lift-off events.
+
+Slider features include similar touchdown, on-going and lift-off events.
+
+Refer to comments section of processButtons.c and processSliders.c for more details.
+
+The code example also features interfacing with Tuner GUI using I2C interface.
+
+Tested on CY8CPROTO-062-4343W kit
+
+This project uses the [CAPSENSE&trade; Middleware Library](https://github.com/Infineon/capsense).
 
 ## Requirements
 
