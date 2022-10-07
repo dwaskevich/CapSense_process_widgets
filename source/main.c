@@ -61,6 +61,7 @@
 #include "cycfg_capsense.h"
 #include "processSliders.h"
 #include "processButtons.h"
+#include "systickTimer.h"
 
 /*******************************************************************************
 * Macros
@@ -138,6 +139,8 @@ int main(void)
     /* Enable global interrupts */
     __enable_irq();
 
+    SysTickTimerInit();
+
     cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, 1);
 
     initialize_capsense_tuner();
@@ -173,7 +176,6 @@ int main(void)
 
             capsense_scan_complete = false;
         }
-
     }
     
 }

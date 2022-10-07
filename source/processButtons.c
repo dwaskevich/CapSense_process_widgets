@@ -35,10 +35,11 @@
  *  			in the placeholder sections of each handler.
  *
  *  Usage:
+ *  			- include systickTimer.h in main.c (#include "systickTimer.h")
+ *  			- call SysTickTimerInit() before forever loop to initialize SysTick timer
  *  			- include processButtons.h file in main.c (#include "processButtons.h")
  *  			- add descriptive button names (if desired) to enum in processButtons.h file
  *  				- note - these names are used as limits in the for() loop
- *  			- enter total CapSense scan time in TOUCH_COUNT_MSEC macro (processButtons.h)
  *  			- enter desired hold and repeat rate parameters in processButtons.h
  *  			- copy/paste (or delete) template handler to add (or remove) additional buttons
  *  			- add action code to desired events
@@ -50,6 +51,8 @@
 #include "cybsp.h"
 #include "cycfg_capsense.h"
 #include "processButtons.h"
+
+extern volatile uint16_t sysTickTimer;
 
 uint32_t processButtons(void)
 {
@@ -126,16 +129,16 @@ void processTouchEvents(uint32_t numberActiveWidgets, bool newEvent, uint32_t bi
 
 void btn_Button0(uint32_t eventType, bool newEvent)
 {
-	static uint32_t scanCounter, repeatCount;
+	static uint32_t repeatCount;
 	static bool shortHoldExpired, longHoldExpired;
-	static uint32_t longHoldTime = LONG_HOLD_TIME_COUNTS;
+	static uint32_t longHoldTime = LONG_HOLD_TIME_MSEC;
 
 	if(TOUCH_ACTIVE == eventType) /* number of active widgets is 1 */
 	{
 		if(true == newEvent) /* indicates a touchdown event */
 		{
-			scanCounter = 0; /* reset scan counter ... will be used to measure hold time */
-			longHoldTime = LONG_HOLD_TIME_COUNTS;
+			sysTickTimer = 0; /* reset timer ... will be used to measure hold time */
+			longHoldTime = LONG_HOLD_TIME_MSEC;
 			shortHoldExpired = false;
 			longHoldExpired = false;
 
@@ -149,22 +152,22 @@ void btn_Button0(uint32_t eventType, bool newEvent)
 
 
 			/* test for hold-time events */
-			if(scanCounter++ > TOUCH_HOLD_TIME_COUNTS && false == longHoldExpired) /* time to do something */
+			if(sysTickTimer > TOUCH_HOLD_TIME_MSEC && false == longHoldExpired) /* time to do something */
 			{
 				if(false == shortHoldExpired) /* first expiration (i.e. hold time expired) */
 				{
 					shortHoldExpired = true; /* set flag */
-					repeatCount = 0; /* initialize repeat counter */
+					repeatCount = sysTickTimer; /* initialize repeat counter */
 
 					/* do any short hold actions here (will only happen once until button is released) */
 					cyhal_gpio_write(CYBSP_USER_LED, MY_LED_OFF);
 
 				}
-				else /* execute "repeat" actions every TOUCH_REPEAT_COUNTS interval */
+				else /* execute "repeat" actions every TOUCH_REPEAT_RATE interval */
 				{
-					if(repeatCount++ > TOUCH_REPEAT_COUNTS)
+					if(sysTickTimer > repeatCount + TOUCH_REPEAT_RATE)
 					{
-						repeatCount = 0; /* reset repeat counter */
+						repeatCount = sysTickTimer; /* reinitialize repeat counter */
 
 						/* do any repeat actions here */
 						cyhal_gpio_toggle(CYBSP_USER_LED);
@@ -172,10 +175,10 @@ void btn_Button0(uint32_t eventType, bool newEvent)
 				}
 			}
 
-			if(scanCounter > longHoldTime)
+			if(sysTickTimer > longHoldTime)
 			{
-				longHoldTime = LONG_HOLD_TIME_COUNTS + LONG_HOLD_HYSTERESIS_COUNTS; /* add hysteresis in case button continues to be held */
-				scanCounter = 0; /* reset CapSense scan counter */
+				longHoldTime = LONG_HOLD_TIME_MSEC + LONG_HOLD_TIME_HYST_MSEC; /* add hysteresis in case button continues to be held */
+				sysTickTimer = 0; /* reset SysTick timer */
 				longHoldExpired = true; /* set flag */
 
 				/* do any long-hold actions here */
@@ -192,16 +195,16 @@ void btn_Button0(uint32_t eventType, bool newEvent)
 
 void btn_Button1(uint32_t eventType, bool newEvent)
 {
-	static uint32_t scanCounter, repeatCount;
+	static uint32_t repeatCount;
 	static bool shortHoldExpired, longHoldExpired;
-	static uint32_t longHoldTime = LONG_HOLD_TIME_COUNTS;
+	static uint32_t longHoldTime = LONG_HOLD_TIME_MSEC;
 
 	if(TOUCH_ACTIVE == eventType) /* number of active widgets is 1 */
 	{
 		if(true == newEvent) /* indicates a touchdown event */
 		{
-			scanCounter = 0; /* reset scan counter ... will be used to measure hold time */
-			longHoldTime = LONG_HOLD_TIME_COUNTS;
+			sysTickTimer = 0; /* reset timer ... will be used to measure hold time */
+			longHoldTime = LONG_HOLD_TIME_MSEC;
 			shortHoldExpired = false;
 			longHoldExpired = false;
 
@@ -215,22 +218,22 @@ void btn_Button1(uint32_t eventType, bool newEvent)
 
 
 			/* test for hold-time events */
-			if(scanCounter++ > TOUCH_HOLD_TIME_COUNTS && false == longHoldExpired) /* time to do something */
+			if(sysTickTimer > TOUCH_HOLD_TIME_MSEC && false == longHoldExpired) /* time to do something */
 			{
 				if(false == shortHoldExpired) /* first expiration (i.e. hold time expired) */
 				{
 					shortHoldExpired = true; /* set flag */
-					repeatCount = 0; /* initialize repeat counter */
+					repeatCount = sysTickTimer; /* initialize repeat counter */
 
 					/* do any short hold actions here (will only happen once until button is released) */
 					cyhal_gpio_write(CYBSP_USER_LED, MY_LED_OFF);
 
 				}
-				else /* execute "repeat" actions every TOUCH_REPEAT_COUNTS interval */
+				else /* execute "repeat" actions every TOUCH_REPEAT_RATE interval */
 				{
-					if(repeatCount++ > TOUCH_REPEAT_COUNTS)
+					if(sysTickTimer > repeatCount + TOUCH_REPEAT_RATE)
 					{
-						repeatCount = 0; /* reset repeat counter */
+						repeatCount = sysTickTimer; /* reinitialize repeat counter */
 
 						/* do any repeat actions here */
 						cyhal_gpio_toggle(CYBSP_USER_LED);
@@ -238,10 +241,10 @@ void btn_Button1(uint32_t eventType, bool newEvent)
 				}
 			}
 
-			if(scanCounter > longHoldTime)
+			if(sysTickTimer > longHoldTime)
 			{
-				longHoldTime = LONG_HOLD_TIME_COUNTS + LONG_HOLD_HYSTERESIS_COUNTS; /* add hysteresis in case button continues to be held */
-				scanCounter = 0; /* reset CapSense scan counter */
+				longHoldTime = LONG_HOLD_TIME_MSEC + LONG_HOLD_TIME_HYST_MSEC; /* add hysteresis in case button continues to be held */
+				sysTickTimer = 0; /* reset SysTick timer */
 				longHoldExpired = true; /* set flag */
 
 				/* do any long-hold actions here */
