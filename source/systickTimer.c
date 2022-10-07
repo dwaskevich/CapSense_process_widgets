@@ -10,7 +10,6 @@
 
 /* SysTick counters (updated in ISR) */
 volatile uint16_t sysTickTimer = 0;
-volatile uint16_t sysTickTouchTimer = 0;
 
 
 void SysTickTimerInit(void)
